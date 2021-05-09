@@ -32,6 +32,7 @@ pods.split_mcfun = function(no_runs_mc, B, dfmin) {
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
 
+     # introduce relevant functions to server
     HolpAlasso.set = HolpAlasso.set
     Projection.set = Projection.set
     glmnet = glmnet
