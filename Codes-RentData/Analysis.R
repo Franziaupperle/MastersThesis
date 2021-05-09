@@ -119,11 +119,18 @@ for (i in 1:length(freq)) {
   
   # get index of the variable with the i smallest relative inculsion frequency
   ndx <- order(freq)[i]
-  print(ndx)
-  print(freq[ndx])
   # get all inidices that have a relative inclusion frequency of at least freq[ndx]
   M.hat <- which(freq >= freq[ndx])
   print(colnames(x[,M.hat]))
+          
+   # For R-Split and PODS-Split, the following holds because the value of each relative inclusion frequency is relevant
+   # freq[ndx] = freq[ndx]
+          
+   # For Double-Stability (-0.01) is subtracted from the value of the relative inclusion frequency,
+   # on which the variables of this iteration base, which is defined by 'freq[ndx]' 
+   # because this is the reference treshold where the just additionally selected variables would not be dropped
+   # this is by far for being super precise
+   freq[ndx] = freq[ndx] - 0.01
   
   # Post-LASSO OLS step
   # get estimator for the rental brake
@@ -153,7 +160,7 @@ for (i in 1:length(freq)) {
 # Grafics for the Estimated effects, Adj. R^2 and Model Size depending on the treshold
 # As well as Empirical Cumulative Distribution Function for the realtive inclusion frequ in R-Split and PODS-Split 
 
-# ECDF for the RIF
+# ECDF for the RIF for R-Split
 ggplot(model.size, aes(model.size[,1])) + stat_ecdf(geom = "step")+
   labs(title="ECDF for RIF \n of Variables in R-Split",
        y = "Cumulative Frequency", x="Relative Inclusion Frequency") +
