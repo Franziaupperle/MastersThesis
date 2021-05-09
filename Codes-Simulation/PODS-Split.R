@@ -88,7 +88,7 @@ pods.split_mcfun = function(no_runs_mc, B, dfmin) {
         
          # start repeated subsampling, model selection treatment estimation
         for (b in 1:B) {
-          # randomly selection subsample
+          # randomly select subsample
           index.subsam = sample(seq(1, pf$n), split.size)
           y.s = y[index.subsam]
           z.s = z[index.subsam, ]
