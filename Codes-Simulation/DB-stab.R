@@ -136,7 +136,13 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
         model.size = length(M.hat)
         
         # bind results of i-th MC-iteration in a vector
-        result = cbind(alpha.est, alpha.se, bias, mse, ci, laenge, model.size)
+        result = cbind(alpha.est, 
+                       alpha.se, 
+                       bias, 
+                       mse, 
+                       ci, 
+                       laenge, 
+                       model.size)
         
         return(result)
         
