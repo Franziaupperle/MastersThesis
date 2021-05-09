@@ -97,7 +97,7 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
           M.yx = db.stab.set(x = x.s, y = y.s)
           M.dx = db.stab.set(x = x.s, y = d.s)
           
-          # story selected coefficients
+          # store selected coefficients
           M.yx.all = append(M.yx.all, M.yx)
           M.dx.all = append(M.dx.all, M.dx)
           
@@ -148,7 +148,7 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
   
   print(para)
   
-  # return final results of Double-Stability with the selected parameter setting in the beginning
+  # return final results of Double-Stability with the selected parameter setting from the beginning
   result = list(
     Result = para,
     Bias = round(sqrt(n) * mean(para[, 3]), 2),
