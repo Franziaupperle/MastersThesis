@@ -3,6 +3,8 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(corrplot)
+
+
 # CALCULATE CORRELATIONS BETWEEN VARIABLES
 
 corr_simple <- function(data=Final_dmy,sig=0.4){
@@ -28,7 +30,7 @@ corr_simple <- function(data=Final_dmy,sig=0.4){
   #print table
   print(corr)
   #turn corr back into matrix in order to plot with corrplot
-  mtx_corr <- reshape2::acast(corr, Var1~Var2, value.var="Freq")
+  mtx_corr <- acast(corr, Var1~Var2, value.var="Freq")
   
   #plot correlations visually
   corrplot(mtx_corr, is.corr=FALSE, tl.col="black", na.label=" ", )
@@ -39,22 +41,22 @@ corr <- corr_simple()
 
 # Distribution of Rent Prices
 
-
 ggplot(Final, aes(y = Rent)) + geom_boxplot(width = 0.15, color="black", fill="red") + labs(x = "", title = "", y = "Rent") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x=element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
 
-# Get frequency plots
+# Get frequency plots for binary variables
+# create variable
+freq_vec <- c(rep("Regtyp.Country1", 356), rep("Regtyp.Country0", 876), 
+              rep("Sampreg.East1", 369), rep("Sampreg.East0", 923),
+              rep("Emergencies.Reserves1", 839), rep("Emergencies.Reserves0", 393), 
+              rep("Balcony1", 897), rep("Balcony0", 335), 
+              rep("Basement1", 1120), rep("Basement0", 112), 
+              rep("Garden1", 449), rep("Garden0", 783), 
+              rep("Car1", 887), rep("Car0", 345), 
+              rep("Yearly.Holiday.Trip1", 758), rep("Yearly.Holiday.Trip0", 474))
 
-freq_vec <- c(rep("Regtyp.Country1", 356), 
-              rep("Regtyp.Country0", 876), 
-              rep("Sampreg.East1", 369), 
-              rep("Sampreg.East0", 923),
-              rep("Emergencies.Reserves1", 839), rep("Emergencies.Reserves0", 393), rep("Balcony1", 897),
-              rep("Balcony0", 335), rep("Basement1", 1120), rep("Basement0", 112), rep("Garden1", 449), rep("Garden0", 783), 
-              rep("Car1", 887), rep("Car0", 345), rep("Yearly.Holiday.Trip1", 758), rep("Yearly.Holiday.Trip0", 474))
-
-
+# set colour 
 ggplot(data.frame(freq_vec2=freq_vec), aes(x = freq_vec2)) + 
   geom_bar(width = 0.3, color="black", fill=c("lightgreen", "lightgreen", 
                                               "blue", "blue",
@@ -67,23 +69,26 @@ ggplot(data.frame(freq_vec2=freq_vec), aes(x = freq_vec2)) +
     theme(axis.text.x = element_text(angle = 90)) + labs(x = "", title = "", y = "") + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
                                                                                                                                                                       
-
+# Get frequency plot for the treatment variable
 ggplot(Final, aes(x = as.character(Rental.Brake))) + 
   geom_bar(width = 0.1, color="black", fill="red") + labs(x = "", title = "", y = "") +
   scale_x_discrete()+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
-
+# Get frequency plot for the Federal States
 ggplot(Final, aes(x = FS)) + geom_bar(width = 0.3, color="black", fill="green") + labs(x = "", title = "", y = "") + 
   theme(axis.text.x = element_text(angle = 90))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
-                                                                                                                                                                         
+
+# Get Frequency Plot for the Year of Construction
 ggplot(Final, aes(x = YC)) + geom_bar(width = 0.3, color="black", fill="orange") + labs(x = "", title = "", y = "") + 
   theme(axis.text.x = element_text(angle = 90)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
+# Get frequency plot the residential areasA
 ggplot(Final, aes(x = ResA)) + geom_bar(width = 0.3, color="black", fill="purple") + labs(x = "", title = "", y = "") + 
   theme(axis.text.x = element_text(angle = 90)) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"))
 
+# get summary of numeric variables
 round(summary(Final$Additional.Costs),2)
 round(summary(Final$Net.Income),2)
 round(summary(Final$Number.Children),2)
