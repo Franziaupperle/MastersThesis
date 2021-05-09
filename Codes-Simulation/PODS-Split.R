@@ -41,7 +41,7 @@ pods.split_mcfun = function(no_runs_mc, B, dfmin) {
     IF.varestbiascorr = IF.varestbiascorr
     generate.data = generate.data
 
-
+     # distribute MC-iterations
     temp <-
       foreach (
         i = 1:no_runs_mc,
