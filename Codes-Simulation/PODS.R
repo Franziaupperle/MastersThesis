@@ -1,6 +1,7 @@
 
 # # PODS - Projection onto Double Selection
 
+# no_runs_mc: number of MC iterations
 pods.mcfun = function(no_runs_mc) {
   
   # generate relevant parameters
@@ -22,6 +23,10 @@ pods.mcfun = function(no_runs_mc) {
   
   # function to execute simulation iterations parallel
   
+  # no_runs_mc: number of MC-iterations
+  # pf: selected parameters
+  # Rd2: coefficient of determination in the treatment equation
+  # Ry2: coefficient of determination in the main equation
   pods.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
     # initialize variables
@@ -69,6 +74,7 @@ pods.mcfun = function(no_runs_mc) {
       d = data$d
       alpha0 = pf$alpha0
       
+      # perform PODS model selection and treatment effect estimation
       proj = Projection(
         alpha0 = alpha0,
         y = y,
@@ -76,9 +82,11 @@ pods.mcfun = function(no_runs_mc) {
         x = x
       )
       
+      # get rerults
       alpha.est = proj$alpha
       alpha.se = proj$se
       
+      # calculate relevant performance measures
       bias = alpha.est - alpha0
       mse = (alpha.est - alpha0) ^ 2 + alpha.se ^ 2
       confi = ci.coverfun(alpha.est, alpha.se, alpha0)
@@ -86,6 +94,7 @@ pods.mcfun = function(no_runs_mc) {
       ci.laenge = (confi$ci.upper - confi$ci.lower)
       model.size = proj$model.size
       
+      # bind results of i-th MC-iteration in a vector
       result = cbind(alpha.est, alpha.se, bias, mse, ci, ci.laenge, model.size)
       
       return(result)
@@ -93,11 +102,12 @@ pods.mcfun = function(no_runs_mc) {
       stopCluster(cl)
       
     }
-    
+    # return result of i-th MC iteration
     return(temp)
     
   }
   
+  # return final results of Double-Stability with the selected parameter setting in the beginning
   result = list(
     Result = para,
     Bias = round(sqrt(n) * mean(para[, 3]), 2),
