@@ -169,53 +169,66 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   fit.lasso = cv.glmnet(x = x.screen, y = y, penalty.factor = penality.weight, 
                         standardize = TRUE, intercept = TRUE, pmax = dfmax) 
   
-  lambda.dfmin = as.numeric(which(fit.lasso$nzero >= dfmin)[1]) # nzero: number of non-zero coefficients at each LAMBDA 
-  # lambda.dfmin: index of the lambda-vector where model size is at least 'dfmin' large
-  lambda.dfmin = fit.lasso$lambda[lambda.dfmin] # get lambda from jsut discovered index
-  lambda.lasso = fit.lasso$lambda.min # value of lambda that delivers minimum cvm, note: this value could be larger than lambda.dfmin and thus delivering a smaller (maybe too small model)
-  lambda = min(lambda.lasso, lambda.dfmin) # get the lambda that delivers the minimum cvm with regard to the minimum for selected model size
+  # nzero: number of non-zero coefficients at each LAMBDA 
+  # get lambda.dfmin: index of the lambda-vector where model size is at least of size 'dfmin'
+  lambda.dfmin = as.numeric(which(fit.lasso$nzero >= dfmin)[1]) 
+  # get lambda from just discovered index
+  lambda.dfmin = fit.lasso$lambda[lambda.dfmin] 
+  # get value of lambda that delivers minimum cvm
+  # note: this value could be larger than lambda.dfmin and thus delivering a smaller (maybe too small model)
+  lambda.lasso = fit.lasso$lambda.min 
+   # get the lambda that delivers the minimum cvm with regard to the minimum for selected model size
+  lambda = min(lambda.lasso, lambda.dfmin)
+  
   if(is.na(lambda)){
-    lambda = min(fit.lasso$lambda) # 2) 
+    lambda = min(fit.lasso$lambda) 
   }
   
   # 3) rebuilding the model using glmnet() function
+  # glmnet needs to be used again, because potentially, lambda.min was not chosen for lambda in line 181
   fit.lasso0 = glmnet(x = x.screen, y = y, standardize = TRUE, intercept = TRUE, 
-                       lambda = lambda, penalty.factor = penality.weight)  # wird nochmals gebraucht, da ggf. nicht lambda$min aus cv.glmnet
-  # gewählt wird, sondern das lambda in abhängigkeit von dfmin kleiner ist
-  theta.lasso = as.vector(coef(fit.lasso0))                              
-  index.lasso = theta.lasso[-1]!=0 # glmnet also estimates an intercept, dieses löschen wir hier raus 
-  # (wenn es ungleich 0 ist)
+                       lambda = lambda, penalty.factor = penality.weight)  
+  # get nonzero coef of refitted model
+  theta.lasso = as.vector(coef(fit.lasso0)) 
+  # delete the estimated intercept of the LASSO regression with glmnet
+  index.lasso = theta.lasso[-1]!=0 
   
+  # get the final selection indices
   M.hat = sort(index.Holp[index.lasso], decreasing = FALSE)
   
+  # if no variable was selected, R-Split keeps at least the treatment
   if(default){
   if(sum(index.lasso) == 0){
     M.hat = 1
   }
   }
   
-  return(M.hat) # in M.hat ist treatment auf jeden Tall dabeiii!
+  return(M.hat)
 }
-# cv.glmnet() and glmnet() both have to be used. cv.glmnet() to identify the best lambda, glmnet() to calculate M.hat
 
 
+# This function selects the the variables of Double-Stability and is thus applied twice per iteration
 
+# y: dependent variable, 
+# x: regressor matrix
 db.stab.set = function(x, y){
   
   p = length(x[1,])
   index.Holp = seq(1,p,1)
   
-  fit.lasso = cv.glmnet(x = x, y = y, # 1) does k-fold cross-validation for glmnet, 
-                        standardize = TRUE, intercept = TRUE) # produces a plot, and returns a value for lambda (and gamma if relax=TRUE)
+  # does k-fold cross-validation for glmnet and produces a plot, and returns a value for lambda 
+  fit.lasso = cv.glmnet(x = x, y = y, 
+                        standardize = TRUE, intercept = TRUE) 
   
-  lambda = fit.lasso$lambda.min # value of lambda that gives minimum cvm; cvm: The mean cross-validated error - a vector of length length(lambda)
+  # get value of lambda that delivers minimum cvm
+  lambda = fit.lasso$lambda.min 
   
-  fit.lasso0 = glmnet(x = x, y = y, standardize = TRUE, intercept = TRUE, # 3) rebuilding the model using glmnet() function
-                      lambda = lambda)  # wird nochmals gebraucht, da ggf. nicht lambda$min aus cv.glmnet
-  # gewählt wird, sondern das lambda in abhängigkeit von dfmin kleiner ist
+  # rebuilding the model using glmnet() function
+  fit.lasso0 = glmnet(x = x, y = y, standardize = TRUE, intercept = TRUE, 
+                      lambda = lambda) 
+  
   theta.lasso = as.vector(coef(fit.lasso0))                              
-  index.lasso = theta.lasso[-1]!=0 # glmnet also estimates an intercept, dieses löschen wir hier raus 
-  # (wenn es ungleich 0 ist)
+  index.lasso = theta.lasso[-1]!=0 
   
   M.hat = sort(index.Holp[index.lasso], decreasing = FALSE)
   
@@ -223,7 +236,7 @@ db.stab.set = function(x, y){
     M.hat = NULL
   }
   
-  return(M.hat) # in M.hat ist treatment auf jeden Tall dabeiii!
+  return(M.hat) 
 }
 
 
