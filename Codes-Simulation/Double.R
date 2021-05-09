@@ -1,6 +1,7 @@
 
 ### Estimation with Double selection
 
+# no_runs_mc: number of MC iterations
 double.mcfun = function(no_runs_mc) {
   
   # generate relevant parameters
