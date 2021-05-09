@@ -1,6 +1,9 @@
 
 ### R - Split
 
+# no_runs_mc: number of MC-iterations
+# B: number of subsampling steps
+# dfmin: lower bound of the model size
 r.split_mcfun = function(no_runs_mc, B, dfmin) {
   
   # generate relevant parameters
