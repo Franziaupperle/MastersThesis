@@ -3,6 +3,7 @@
 
 r.split_mcfun = function(no_runs_mc, B, dfmin) {
   
+  # generate relevant parameters
   pf = generate.parameter(
     n = n,
     p = p,
@@ -11,6 +12,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
     gamma = gamma
   )
   
+  # start parallel computing
   para = parallel_r_split(
     B = B,
     pf = pf,
