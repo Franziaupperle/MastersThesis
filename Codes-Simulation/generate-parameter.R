@@ -2,9 +2,12 @@
 
 ## Function to generate the main parameters as requested in "Results.R"
 
+# n: number of observations
+# p: number of variables
+# type: type of correlation matrix
+# beta: desired vector for beta
+# gamma: desired vector for gamma
 generate.parameter = function(n, p, type, beta, gamma) {
-  
-  ## Parameters
   
   ## treatment effect
   alpha0 = 1.5
@@ -13,8 +16,10 @@ generate.parameter = function(n, p, type, beta, gamma) {
   ## sample size for model selection
   split.size = 0.7 * n
   
+  # generate correlation matrix
   Sigma = generate.sigma(p, type)
   
+  # generate vecotrs for beta
   if (beta == "sparse") {
     beta = c(1, 1, 1, 1, rep(0, p - 4))
     m_x0 = c(1, 2, 3, 4) # m_x0 is for Oracle estimation, that knows the true model with m_x0 representing the true model
@@ -29,12 +34,14 @@ generate.parameter = function(n, p, type, beta, gamma) {
     m_x0 = NULL # m_x0 not necessary due to the non existent oracle estimator for this setting
   }
   
+  # generate vectros for gamma
   if (gamma == "sparse") {
     gamma = c(0, 0, 0, 0, 1, 1, 1, 1, rep(0, p - 8))
   } else if (gamma == "dense") {
     gamma = c(1 / (sqrt(seq(1, p))))
   }
   
+  # return parameters
   result = list(
     Sigma = Sigma,
     gamma = gamma,
