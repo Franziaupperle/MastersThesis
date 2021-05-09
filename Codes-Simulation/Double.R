@@ -37,9 +37,11 @@ double.mcfun = function(no_runs_mc) {
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
     
+    # introduce relevant functions to server
     ci.coverfun = ci.coverfun
     generate.data = generate.data
     
+    # 
     temp <- foreach (
       i = 1:no_runs_mc,
       .combine = 'rbind',
