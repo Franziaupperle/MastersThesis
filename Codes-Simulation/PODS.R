@@ -39,6 +39,7 @@ pods.mcfun = function(no_runs_mc) {
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
     
+     # introduce relevant functions to server
     IF.varestbiascorr = IF.varestbiascorr
     generate.data = generate.data
     Projection = Projection
