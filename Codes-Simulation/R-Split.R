@@ -23,8 +23,8 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
     
     cat("start parallelisierung \n \n")
     
+     # initialize cores
     numCores <- detectCores()
-    
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
     
