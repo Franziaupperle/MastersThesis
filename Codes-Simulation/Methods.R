@@ -119,7 +119,7 @@ IF.varestbiascorr = function(Y.count, alpha.est, n, split.size){
 }
 
 
-# This function selects the model for R-Split and both stages of PODS-Split and Double-Stability
+# This function selects the model for R-Split and both stages of PODS-Split 
 # It contains first variable screening
 
 HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
@@ -131,37 +131,38 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   
   X = scale(x)
   Y = y - mean(y)
-  OLS = t(X) %*% solve(X %*% t(X) + diag(n) * 1, Y) # X = cbind(d,x), also quasi funktion hier: Z*(ZZ^T)^-1*Z*Y, HOLP ridge estimator
+  OLS = t(X) %*% solve(X %*% t(X) + diag(n) * 1, Y) # HOLP ridge estimator
   ranking = sort(abs(OLS), index.return = TRUE, decreasing = TRUE)
   index.Holp = ranking$ix[1:size.holp] # just keep the size.holp (300) first highest variables
   
   if(default){
     index.Holp = unique(c(m0,index.Holp)) # delete duplicates, m0=1 is used here to ensure that 
-    # the treatment effect d (which is the first column of z) is exactly once in M.hat,  index.Holp dann 300x1 oder 301x1
+    # the treatment effect d (which is the first column of z) is exactly once in M.hat
   }
   
-  x.screen = x[,index.Holp] # build new matrix out of old matrix x with the as relevant identified indices [split.size x size.holp] [70 x 300(301)] Matrix
+  x.screen = x[,index.Holp] # build new matrix out of old matrix x with the as relevant identified indices from screening
   
-  penality.weight = 1/abs(OLS[index.Holp,1])
+  penality.weight = 1/abs(OLS[index.Holp,1])  # define penalty weights vector for the adaptive LASSO
   if(default){
-    penality.weight[match(m0,index.Holp)] = 0  # dort, wo index.holp 1 stehen (treatment) hat, wird penality weight 0 sein 
-    # heißt, dass treatment kein penaltygewicht bekommt für lasso regression
+    penality.weight[match(m0,index.Holp)] = 0  # treatment get penatly weight 0
+
   }
   
-  
-  fit.lasso = cv.glmnet(x = x.screen, y = y, penalty.factor = penality.weight, # 1) does k-fold cross-validation for glmnet, 
-                        standardize = TRUE, intercept = TRUE, pmax = dfmax) # produces a plot, and returns a value for lambda (and gamma if relax=TRUE)
+  # 1) does k-fold cross-validation for glmnet and produces a plot, and returns a value for lambda 
+  fit.lasso = cv.glmnet(x = x.screen, y = y, penalty.factor = penality.weight, 
+                        standardize = TRUE, intercept = TRUE, pmax = dfmax) 
   
   lambda.dfmin = as.numeric(which(fit.lasso$nzero >= dfmin)[1]) # nzero: number of non-zero coefficients at each LAMBDA 
-  # lambda.dfmin: stelle, an der lambda.dfmin abzulesen ist
-  lambda.dfmin = fit.lasso$lambda[lambda.dfmin] # jetzt wird an der eben berechneten Stelle das tatsächliche lambda abgelesen
-  lambda.lasso = fit.lasso$lambda.min # value of lambda that gives minimum cvm; cvm: The mean cross-validated error - a vector of length length(lambda)
-  lambda = min(lambda.lasso, lambda.dfmin)
+  # lambda.dfmin: index of the lambda-vector where model size is at least 'dfmin' large
+  lambda.dfmin = fit.lasso$lambda[lambda.dfmin] # get lambda from jsut discovered index
+  lambda.lasso = fit.lasso$lambda.min # value of lambda that delivers minimum cvm, note: this value could be larger than lambda.dfmin and thus delivering a smaller (maybe too small model)
+  lambda = min(lambda.lasso, lambda.dfmin) # get the lambda that delivers the minimum cvm with regard to the minimum for selected model size
   if(is.na(lambda)){
-    lambda = min(fit.lasso$lambda) # 2) cv.glmnet used to identify the best lambda
+    lambda = min(fit.lasso$lambda) # 2) 
   }
   
-  fit.lasso0 = glmnet(x = x.screen, y = y, standardize = TRUE, intercept = TRUE, # 3) rebuilding the model using glmnet() function
+  # 3) rebuilding the model using glmnet() function
+  fit.lasso0 = glmnet(x = x.screen, y = y, standardize = TRUE, intercept = TRUE, 
                        lambda = lambda, penalty.factor = penality.weight)  # wird nochmals gebraucht, da ggf. nicht lambda$min aus cv.glmnet
   # gewählt wird, sondern das lambda in abhängigkeit von dfmin kleiner ist
   theta.lasso = as.vector(coef(fit.lasso0))                              
