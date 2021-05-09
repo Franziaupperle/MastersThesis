@@ -3,6 +3,7 @@
 
 pods.mcfun = function(no_runs_mc) {
   
+  # generate relevant parameters
   pf = generate.parameter(
     n = n,
     p = p,
@@ -11,6 +12,7 @@ pods.mcfun = function(no_runs_mc) {
     gamma = gamma
   )
   
+  # start parallel computing
   para = pods.parallel(
     no_runs_mc = no_runs_mc,
     pf = pf,
