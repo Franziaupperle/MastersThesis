@@ -12,6 +12,7 @@ double.mcfun = function(no_runs_mc) {
     gamma = gamma
   )
   
+  # start parallel computing
   para = double.parallel(
     no_runs_mc = no_runs_mc,
     pf = pf,
@@ -19,7 +20,7 @@ double.mcfun = function(no_runs_mc) {
     Ry2 = Ry2
   )
   
-  # start parallel computing
+  
   double.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
     alpha.est = NULL
