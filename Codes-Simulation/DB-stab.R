@@ -15,7 +15,7 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
     gamma = gamma
   )
   
-  # start parallel cumputing
+  # start parallel computing
   para = parallel_db_stab(
     B = B,
     pf = pf,
