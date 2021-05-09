@@ -20,6 +20,7 @@ double.mcfun = function(no_runs_mc) {
     Ry2 = Ry2
   )
   
+  # function to execute simulation iterations parallel
   
   double.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
