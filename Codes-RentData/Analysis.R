@@ -86,9 +86,9 @@ PODS.SPLIT_WO_CV <- PODS.Split(y = y, d = d, x = x, B = 1000)
 
 # DOUBLE STABILITY
 # perform Double-Stability with LASSO model selection applying cross-validation
-DB.STABILITY_W_CV = Double.Stability(y = y, d = d, x = x, B = 1000)
+DB.STABILITY_W_CV <- Double.Stability(y = y, d = d, x = x, B = 1000)
 # perform Double-Stability with LASSO model selection applying rigorous LASSO
-DB.STABILITY_WO_CV = Double.Stability(y = y, d = d, x = x, B = 1000)
+DB.STABILITY_WO_CV <- Double.Stability(y = y, d = d, x = x, B = 1000)
 
 
 
@@ -122,23 +122,23 @@ for (i in 1:length(freq)) {
   print(ndx)
   print(freq[ndx])
   # get all inidices that have a relative inclusion frequency of at least freq[ndx]
-  M.hat = which(freq >= freq[ndx])
+  M.hat <- which(freq >= freq[ndx])
   print(colnames(x[,M.hat]))
   
   # Post-LASSO OLS step
   # get estimator for the rental brake
-  lm = lm(y ~ d + x[,M.hat]) 
-  RB.est[i,1] = freq[ndx]
-  RB.est[i,2] = lm$coef[2]
+  lm <- lm(y ~ d + x[,M.hat]) 
+  RB.est[i,1] <- freq[ndx]
+  RB.est[i,2] <- lm$coef[2]
   
   # get its HC1 standard error
   lm_HC1 = coeftest(lm, vcov = vcovHC(lm, type="HC1"))
-  RB.se[i,1] = freq[ndx]
-  RB.se[i,2] = lm_HC1[2,2]
+  RB.se[i,1] <- freq[ndx]
+  RB.se[i,2] <- lm_HC1[2,2]
  
   # get its model size
-  model.size[i,1] = freq[ndx]
-  model.size[i,2] = length(M.hat)
+  model.size[i,1] <- freq[ndx]
+  model.size[i,2] <- length(M.hat)
 
   # get R-Squared of the regression
   R2[i,1] <- freq[ndx]
