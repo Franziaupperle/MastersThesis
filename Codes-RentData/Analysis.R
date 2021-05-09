@@ -132,7 +132,7 @@ for (i in 1:length(freq)) {
   RB.est[i,2] <- lm$coef[2]
   
   # get its HC1 standard error
-  lm_HC1 = coeftest(lm, vcov = vcovHC(lm, type="HC1"))
+  lm_HC1 <- coeftest(lm, vcov = vcovHC(lm, type="HC1"))
   RB.se[i,1] <- freq[ndx]
   RB.se[i,2] <- lm_HC1[2,2]
  
