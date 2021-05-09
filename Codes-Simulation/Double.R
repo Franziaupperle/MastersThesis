@@ -22,8 +22,13 @@ double.mcfun = function(no_runs_mc) {
   
   # function to execute simulation iterations parallel
   
+  # no_runs_mc: number of MC-iterations
+  # pf: selected parameters
+  # Rd2: coefficient of determination in the treatment equation
+  # Ry2: coefficient of determination in the main equation
   double.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
+    # declare variables/vectors
     alpha.est = NULL
     alpha.se = NULL
     bias = c()
@@ -66,6 +71,7 @@ double.mcfun = function(no_runs_mc) {
       d = data$d
       alpha0 = pf$alpha0
       
+      # perform Double-Selection with function rlasso
       double.ATE = rlassoEffect(
         x = x,
         y = y,
@@ -74,10 +80,13 @@ double.mcfun = function(no_runs_mc) {
         I3 = NULL
       )
       
+      
+      # get results
       alpha.est = double.ATE$alpha
       alpha.se = double.ATE$se[1]
       model.size = length(double.ATE$coefficients.reg) - 1
       
+      # calculate relevant performance measures
       bias = alpha.est - alpha0
       mse = (alpha.est - alpha0) ^ 2 + alpha.se ^ 2
       confi.int = ci.coverfun(alpha.est = alpha.est,
@@ -86,17 +95,19 @@ double.mcfun = function(no_runs_mc) {
       ci = confi.int$truefalse
       ci.laenge = confi.int$ci.upper - confi.int$ci.lower
       
+      # bind results of i-th MC-iteration in a vector
       result = cbind(alpha.est, alpha.se, bias, mse, ci, ci.laenge, model.size)
       
       return(result)
       
       stopCluster(cl)
     }
-    
+    # return result of i-th MC iteration
     return(temp)
     
   }
   
+  # return final results of Double-Stability with the selected parameter setting in the beginning
   result = list(
     Result = para,
     Bias = round(sqrt(n) * mean(para[, 3]), 2),
