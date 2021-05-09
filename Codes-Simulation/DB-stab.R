@@ -86,7 +86,7 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
         
         # start repeated subsampling and model selection 
         for (b in 1:B) {
-          # randomly selection subsample
+          # randomly select subsample
           index.subsam = sample(seq(1, pf$n), 0.6 * pf$n)
           y.s = y[index.subsam]
           z.s = z[index.subsam, ]
