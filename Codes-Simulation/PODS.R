@@ -30,8 +30,8 @@ pods.mcfun = function(no_runs_mc) {
   
     cat("start parallelisierung \n \n")
     
+    # initialize cores
     numCores <- detectCores()
-    
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
     
