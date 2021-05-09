@@ -6,9 +6,6 @@
 # It further proves, if the true value of alpha lies within the 95%-CI
 # This is also known as the coverage probability
 
-# The coverage probability of a technique for calculating a confidence interval 
-# is the proportion of the time that the interval contains the true value of interest.
-
 # alpha.est: estimated value of alpha
 # alpha.se: estimated standard error of alpha
 # alpha0: true value of alpha
@@ -26,7 +23,8 @@ ci.coverfun = function(alpha.est, alpha.se, alpha0){
 
 # alpha0: true value of alpha
 # y: dependent variable, d: treatment
-# x: regressor matrix, m_x0: index vector representing the true model
+# x: regressor matrix, 
+# m_x0: index vector representing the true model
 oracle = function(alpha0, y, d, x, m_x0){
   
   fit = lm(y ~ d + x[,m_x0])
@@ -42,7 +40,10 @@ oracle = function(alpha0, y, d, x, m_x0){
 
 # This function performs Projection-on-Double-Selection
 
-# alpha0: true value of alpha, y: dependent variable, d: treatment, x: regressor matrix, m_x0: index vector representing the true model
+# alpha0: true value of alpha, 
+# y: dependent variable, 
+# d: treatment, 
+# x: regressor matrix
 Projection = function(alpha0, y, d, x) { # For PODS method, because there is no restriction on selected model.size
   
   p = length(x[1,])
@@ -56,10 +57,10 @@ Projection = function(alpha0, y, d, x) { # For PODS method, because there is no 
     fit.dx = 1
   }
   
-  # FRISCH WAUGH THEOREM - variables, that are associated with D and D itself are kicked out (line 54 - 59)
+  # FRISCH WAUGH THEOREM (line 63 - 68)
   M.dx = M[fit.dx] 
   
-  # Step 2: to remove the components associated with D, we project (X, Y) onto a space which is orthogonal to the space spanned by D and X_M_hat_D
+  # Step 2: to remove the components associated with D, (X, Y) is projected onto a space which is orthogonal to the space spanned by D and X_M_hat_D
   x.res = lm(x[,-M.dx]~ d + x[,M.dx])$res 
   y.res = lm(y ~ d + x[,M.dx])$res 
   
@@ -76,16 +77,18 @@ Projection = function(alpha0, y, d, x) { # For PODS method, because there is no 
   # unite relevant covariates from the two selection steps 
   M.hat = c(M.dx, M.yx)
   
-  # Auxiliary regression needed for estimating the standard error of athe estimated alpha
+  # Auxiliary regression needed for estimating the standard error of the estimated alpha
   reg.dx = lm(d ~ x[,M.hat])
   # Step 4: Regress Y on D and M.hat to get alpha.hat, which is the estimated coefficient of D
   reg.yx = lm(y ~ d + x[,M.hat]) 
   
-  # Standard error pf the estimated alpha is calculated in line 79 - 83
+  # Standard error of the estimated alpha is calculated (line 85 - 86)
   nu = reg.dx$residuals
   eps = reg.yx$residuals/sqrt(n/(n - length(M.hat) - 1))
   
+  # get estimator for alpha
   alpha.hat = reg.yx$coefficients[2]
+  # get its standard error
   alpha.se = sqrt(1/n * 1/mean(nu^2) * mean(eps^2 * nu^2) * 1/mean(nu^2))
   
   # returns estimated value of alpha, its standard error and the model size of the selected variables
@@ -99,10 +102,11 @@ Projection = function(alpha0, y, d, x) { # For PODS method, because there is no 
 
 # This function calculates the standard errors for the estimated alpha in R-Split and PODS-Split
 
-# Y.count: Matrix with dimension (B x n) with 0-1 entries. 1 indicates iteration j with j = 1,...,B contains obversation observation k with k = 1,..., n
-# alpha.est: vector of dimension (B x 1) that contains estimate values of alpha for each iteration
+# Y.count: Matrix with dimension (B x n) with 0-1 entries. 1 indicates iteration j with j = 1,...,B contains observation k with k = 1,..., n
+# alpha.est: vector of dimension (B x 1) that contains estimated values of alpha for each iteration
 # n: sample size
 # split.size: size of the subsample that was used for model selection
+# for the calculation, see Wang et al (2019) equation (5)
 IF.varestbiascorr = function(Y.count, alpha.est, n, split.size){
   Brep = length(alpha.est)
   n2 = n-split.size
@@ -122,6 +126,13 @@ IF.varestbiascorr = function(Y.count, alpha.est, n, split.size){
 # This function selects the model for R-Split and both stages of PODS-Split 
 # It contains first variable screening
 
+# y: dependent variable, 
+# x: regressor matrix,
+# m0: 1 for R-SPlit, 0 for PODS-Split
+# size.holp: number of variables kept in the HOLP-screening step
+# default: TRUE for R.Split, FALSE for PODS-Split
+# dfmax: upper bound of the model size
+# dfmin: lower bound of the model size
 HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   
   p = length(x[1,])
@@ -131,20 +142,26 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   
   X = scale(x)
   Y = y - mean(y)
-  OLS = t(X) %*% solve(X %*% t(X) + diag(n) * 1, Y) # HOLP ridge estimator
+  # HOLP ridge estimator
+  OLS = t(X) %*% solve(X %*% t(X) + diag(n) * 1, Y) 
   ranking = sort(abs(OLS), index.return = TRUE, decreasing = TRUE)
-  index.Holp = ranking$ix[1:size.holp] # just keep the size.holp (300) first highest variables
+  # just keep the size.holp highest variables
+  index.Holp = ranking$ix[1:size.holp] 
   
   if(default){
-    index.Holp = unique(c(m0,index.Holp)) # delete duplicates, m0=1 is used here to ensure that 
-    # the treatment effect d (which is the first column of z) is exactly once in M.hat
+    # delete duplicates, m0=1 is used here to ensure that 
+    # the treatment effect d (which is the first column of z) is exactly once in M.hat for R-Split
+    index.Holp = unique(c(m0,index.Holp)) 
+ 
   }
   
-  x.screen = x[,index.Holp] # build new matrix out of old matrix x with the as relevant identified indices from screening
-  
-  penality.weight = 1/abs(OLS[index.Holp,1])  # define penalty weights vector for the adaptive LASSO
+  # build new matrix out of old matrix x with the as relevant identified indices from screening
+  x.screen = x[,index.Holp] 
+   # define penalty weights vector for the adaptive LASSO
+  penality.weight = 1/abs(OLS[index.Holp,1]) 
+   # treatment gets penatly weight 0
   if(default){
-    penality.weight[match(m0,index.Holp)] = 0  # treatment get penatly weight 0
+    penality.weight[match(m0,index.Holp)] = 0 
 
   }
   
