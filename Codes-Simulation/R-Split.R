@@ -124,7 +124,15 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
         max.modelsize = max(model.size)
         
          # bind results of i-th MC-iteration in a vector
-        result = cbind(alpha.smoothed, alpha.se, bias, mse, ci, laenge, modelsize, min.modelsize, max.modelsize)
+        result = cbind(alpha.smoothed, 
+                       alpha.se, 
+                       bias, 
+                       mse, 
+                       ci, 
+                       laenge, 
+                       modelsize, 
+                       min.modelsize, 
+                       max.modelsize)
         
         return(result)
         
