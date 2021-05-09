@@ -1,4 +1,7 @@
+## FUNCTION TO GENERATE THE CORRELATION MATRIX
 
+# p: number of observations
+# type: type of correlation matrix
 generate.sigma = function(p, type) {
   
   #Independent
@@ -44,5 +47,6 @@ generate.sigma = function(p, type) {
     diag(Sigma) = 1
   }
   
+  # return generated matrix
   return(Sigma)
 }
