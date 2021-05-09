@@ -22,7 +22,6 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
   )
   
   # function to execute simulation iterations parallel
-  
   parallel_r_split = function(B, pf, dfmin, Rd2, Ry2) {
     
     cat("start parallelisierung \n \n")
@@ -69,13 +68,15 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
         d = data$d
         alpha0 = pf$alpha0
         
+        # declare matrix used to store the selection indices of the sample
         Y.count = matrix(data = NA,
                          nrow = B,
                          ncol = pf$n)
         z = cbind(d, x)
        
-        
+        # start repeated subsampling, model selection treatment estimation
         for (b in 1:B) {
+          # randomly select subsample
           index.subsam = sample(seq(1, pf$n), pf$split.size)
           y.s = y[index.subsam]
           z.s = z[index.subsam,]
@@ -84,6 +85,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
           z.t = z[index.test, ]
           Y.count[b, ] = tabulate(index.subsam, pf$n)
           
+          # perform model selection with PODS
           M.hat = HolpAlasso.set(
             y = y.s,
             x = z.s,
@@ -94,11 +96,13 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
             dfmin = dfmin
           )
           
+          # refit the model
           alpha.est[b] = lm(y.t ~ z.t[, M.hat])$coef[2]
           model.size[b] = length(M.hat) - 1
           
         }
         
+        # get smoothed estimator and its standard error
         alpha.smoothed = mean(alpha.est)
         alpha.se = IF.varestbiascorr(Y.count, alpha.est, pf$n, pf$split.size)
         confi.int = ci.coverfun(
@@ -107,6 +111,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
           alpha0 = pf$alpha0
         )
         
+        # calculate relevant performance measures
         bias = alpha.smoothed - pf$alpha0
         mse = (alpha.smoothed - pf$alpha0) ^ 2 + alpha.se ^ 2
         ci =  confi.int$truefalse
@@ -115,27 +120,20 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
         min.modelsize = min(model.size)
         max.modelsize = max(model.size)
         
-        result = cbind(alpha.smoothed,
-                       alpha.se,
-                       bias,
-                       mse,
-                       ci,
-                       laenge,
-                       modelsize,
-                       min.modelsize,
-                       max.modelsize)
+         # bind results of i-th MC-iteration in a vector
+        result = cbind(alpha.smoothed, alpha.se, bias, mse, ci, laenge, modelsize, min.modelsize, max.modelsize)
         
         return(result)
         
         stopCluster(cl)
         
       }
-    
+    # return result of i-th MC iteration
     return(temp)
   }
   
   print(para)
-  
+  # return final results of PODS-Split with the selected parameter setting from the beginning
   result = list(
     Result = para,
     Bias = round(sqrt(n) * mean(para[, 3]), 2),
