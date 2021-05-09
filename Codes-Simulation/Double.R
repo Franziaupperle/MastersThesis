@@ -43,7 +43,7 @@ double.mcfun = function(no_runs_mc) {
     ci.coverfun = ci.coverfun
     generate.data = generate.data
     
-    # 
+     # distribute MC-iterations
     temp <- foreach (
       i = 1:no_runs_mc,
       .combine = 'rbind',
