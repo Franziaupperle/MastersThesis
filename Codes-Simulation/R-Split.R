@@ -21,6 +21,8 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
     Ry2 = Ry2
   )
   
+  # function to execute simulation iterations parallel
+  
   parallel_r_split = function(B, pf, dfmin, Rd2, Ry2) {
     
     cat("start parallelisierung \n \n")
