@@ -27,6 +27,7 @@ db.stab_mcfun = function(no_runs_mc, B, tresh) {
   # function to execute simulation iterations parallel
   
   # B: number of subsampling steps
+   # pf: generated parameters
   # tresh: selected value for the treshold
   # Rd2: coefficient of determination in the treatment equation
   # Ry2: coefficient of determination in the main equation
