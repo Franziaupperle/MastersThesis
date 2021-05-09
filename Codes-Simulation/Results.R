@@ -17,7 +17,7 @@ library(MASS)
 library(plotrix)
 
 
-### IN THIS FILE, PARAMETER SETS AS WELL AS INTIALISING CALCULATION OF METHODS
+### IN THIS FILE, PARAMETER SETTINGS ARE CHOSEN AND SIMULATIONS ARE STARTED
 
 source("Methods.R") 
 source("generate-sigma.R")
@@ -37,32 +37,32 @@ no_runs_mc = 100
 B = 1000
 n = 100
 p = 500
-beta = "approximately sparse" # "sparse", "approximately sparse", "moderately sparse" or "dense"
-gamma = "dense" # "sparse" or "dense"
-type = "equalcorr9" # "ind", "toeplitz9", "equalcorr9" or"equalcorr3"
+beta = "sparse" # "sparse", "approximately sparse", "moderately sparse" or "dense"
+gamma = "sparse" # "sparse" or "dense"
+type = "toeplitz9" # "ind", "toeplitz9", "equalcorr9" or"equalcorr3"
 Ry2 = 0.8
-Rd2 = 0.8
-dfmin = 10
-tresh = 0.5
+Rd2 = 0.5
+dfmin = 5
+tresh = 0.7
 
 
 # Conduct Monte Carlo Simulations for each method, estimating the treatment effect and calculating performance measures
 
-# Oracle Simulation
-oracle3 = oracle.mcfun(no_runs_mc = no_runs_mc)
+# Simulation with the Oracle 
+oracle1 = oracle.mcfun(no_runs_mc = no_runs_mc)
 
-# Double Simulation
-double6 = double.mcfun(no_runs_mc = no_runs_mc)
+# Simulation with Double-Selection
+double1 = double.mcfun(no_runs_mc = no_runs_mc)
 
-# PODS Simulation
-pods6 = pods.mcfun(no_runs_mc = no_runs_mc)
+# Simulation with PODS
+pods1 = pods.mcfun(no_runs_mc = no_runs_mc)
 
-# R-SPLIT Simulation
-rsplit6 = r.split_mcfun(no_runs_mc = no_runs_mc, B = B, dfmin = dfmin)
+# Simulation with R-SPLIT 
+rsplit1 = r.split_mcfun(no_runs_mc = no_runs_mc, B = B, dfmin = dfmin)
 
-# PODS-SPLIT Simulation
-pods.spli6 = pods.split_mcfun(no_runs_mc = no_runs_mc, B = B, dfmin = dfmin)
+# Simulation with PODS-SPLIT 
+pods.spli1 = pods.split_mcfun(no_runs_mc = no_runs_mc, B = B, dfmin = dfmin)
 
-# DB-STABILITY Simulation
-db.stab6 = db.stab_mcfun(no_runs_mc = no_runs_mc, B = B, tresh = tresh)
+# Simulation with DB-STABILITY 
+db.stab1 = db.stab_mcfun(no_runs_mc = no_runs_mc, B = B, tresh = tresh)
  
