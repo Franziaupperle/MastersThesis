@@ -74,7 +74,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
                          ncol = pf$n)
         z = cbind(d, x)
        
-        # start repeated subsampling, model selection treatment estimation
+        # start repeated subsampling, model selection and treatment estimation
         for (b in 1:B) {
           # randomly select subsample
           index.subsam = sample(seq(1, pf$n), pf$split.size)
@@ -85,7 +85,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
           z.t = z[index.test, ]
           Y.count[b, ] = tabulate(index.subsam, pf$n)
           
-          # perform model selection with PODS
+          # perform model selection with HOLP and the adaptive LASSO
           M.hat = HolpAlasso.set(
             y = y.s,
             x = z.s,
@@ -133,7 +133,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
   }
   
   print(para)
-  # return final results of PODS-Split with the selected parameter setting from the beginning
+  # return final results of R-Split with the selected parameter setting from the beginning
   result = list(
     Result = para,
     Bias = round(sqrt(n) * mean(para[, 3]), 2),
