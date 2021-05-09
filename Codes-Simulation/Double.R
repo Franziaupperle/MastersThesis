@@ -57,6 +57,7 @@ double.mcfun = function(no_runs_mc) {
       
       set.seed(i + 12345)
       
+       # get data
       data = generate.data(pf = pf,
                            Rd2 = Rd2,
                            Ry2 = Ry2)
