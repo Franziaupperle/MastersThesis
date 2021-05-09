@@ -45,6 +45,7 @@ pods.mcfun = function(no_runs_mc) {
     Projection = Projection
     ci.coverfun = ci.coverfun
     
+     # distribute MC-iterations
     temp <- foreach(
       i = 1:no_runs_mc,
       .combine = 'rbind',
