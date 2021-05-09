@@ -10,7 +10,7 @@ library(ggplot2)
 
 source("Functions.R")
 
-# FILE WHERE ALL METHODS START THERE CALCULATIONS
+# FILE WHERE ALL METHODS START THEIR CALCULATIONS
 
 Final <- read.csv("/Users/franziskaaupperle/Desktop/Finals/Rent-Data/Data-full/Final.csv")
 Final_dmy <- read.csv("/Users/franziskaaupperle/Desktop/Finals/Rent-Data/Data-Full/Final_dmy.csv")
@@ -115,6 +115,8 @@ model.size <- data.frame(data = NA, nrow = length(freq), ncol = 2)
 R2 <- data.frame(data = NA, nrow = length(freq), ncol = 2)
 R2_adj <- data.frame(data = NA, nrow = length(freq), ncol = 2)
 
+# loop, that calculates the coefficient of rental brake, Adj. R2, model size 
+# and the ECDF of the relative inclusion frequencies for each realisation of realtive inclusion frequencies
 for (i in 1:length(freq)) {
   
   # get index of the variable with the i smallest relative inculsion frequency
@@ -127,8 +129,8 @@ for (i in 1:length(freq)) {
    # freq[ndx] = freq[ndx]
           
    # For Double-Stability (-0.01) is subtracted from the value of the relative inclusion frequency,
-   # on which the variables of this iteration base, which is defined by 'freq[ndx]' 
-   # because this is the reference treshold where the just additionally selected variables would not be dropped
+   # on which the variables of iteration i base. This RIF is defined by 'freq[ndx]' 
+   # This is the reference treshold where the just additionally selected variables would not be dropped
    # this is by far for being super precise
    freq[ndx] = freq[ndx] - 0.01
   
