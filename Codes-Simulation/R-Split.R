@@ -32,6 +32,7 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
     cl <- makeCluster(numCores[1] - 1)
     registerDoParallel(cl)
     
+     # introduce relevant functions to server
     generate.data = generate.data
     HolpAlasso.set = HolpAlasso.set
     glmnet = glmnet
