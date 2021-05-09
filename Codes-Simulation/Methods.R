@@ -13,7 +13,7 @@ ci.coverfun = function(alpha.est, alpha.se, alpha0){
   ci.lower = alpha.est - 1.96*alpha.se
   ci.upper = alpha.est + 1.96*alpha.se
   truefalse = ifelse(alpha0 >= ci.lower & alpha0 <= ci.upper, 1, 0)
-  # returns information if the true alpha lies within the 95%-CI, upper bound of 95%-CI and lower bound of 95%CI
+  # returns, if the true alpha lies within the 95%-CI, upper bound of 95%-CI and lower bound of 95%CI
   result = list(truefalse = truefalse, ci.upper = ci.upper, ci.lower = ci.lower)
   return(result)
 }
@@ -22,7 +22,8 @@ ci.coverfun = function(alpha.est, alpha.se, alpha0){
 # This function performs the Oracle estimation
 
 # alpha0: true value of alpha
-# y: dependent variable, d: treatment
+# y: dependent variable, 
+# d: treatment
 # x: regressor matrix, 
 # m_x0: index vector representing the true model
 oracle = function(alpha0, y, d, x, m_x0){
@@ -44,27 +45,27 @@ oracle = function(alpha0, y, d, x, m_x0){
 # y: dependent variable, 
 # d: treatment, 
 # x: regressor matrix
-Projection = function(alpha0, y, d, x) { # For PODS method, because there is no restriction on selected model.size
+Projection = function(alpha0, y, d, x) {
   
   p = length(x[1,])
   n = length(y)
   
   M = seq(1,p)
-  # Step 1: select a set of variables M_hat_D which are associated with D
+  # select a set of variables M_hat_D which are associated with D
   fit.dx = rlasso(d ~ x)$index 
   # index of selected variables (logical vector)
   if(sum(fit.dx) == 0){
     fit.dx = 1
   }
   
-  # FRISCH WAUGH THEOREM (line 63 - 68)
+  # FRISCH WAUGH THEOREM (line 65 - 66)
   M.dx = M[fit.dx] 
   
-  # Step 2: to remove the components associated with D, (X, Y) is projected onto a space which is orthogonal to the space spanned by D and X_M_hat_D
+  # to remove the components associated with D, (X, Y) is projected onto a space which is orthogonal to the space spanned by D and X_M_hat_D
   x.res = lm(x[,-M.dx]~ d + x[,M.dx])$res 
   y.res = lm(y ~ d + x[,M.dx])$res 
   
-  # Step 3: selecting additional variables that are expected to have low correlation with D and so the
+  # selecting additional variables that are expected to have low correlation with D and so the
   # over-fitting bias can be controlled. Thus, select a model fit.yx for regressing y.res on x.res
   fit.yx = rlasso(y.res ~ x.res)$index 
   temp0 = M[-M.dx]; 
@@ -82,11 +83,11 @@ Projection = function(alpha0, y, d, x) { # For PODS method, because there is no 
   # Step 4: Regress Y on D and M.hat to get alpha.hat, which is the estimated coefficient of D
   reg.yx = lm(y ~ d + x[,M.hat]) 
   
-  # Standard error of the estimated alpha is calculated (line 85 - 86)
+  # Standard error of alpha.HAT is calculated (line 85 - 86)
   nu = reg.dx$residuals
   eps = reg.yx$residuals/sqrt(n/(n - length(M.hat) - 1))
   
-  # get estimator for alpha
+  # get estimator for alpha.hat
   alpha.hat = reg.yx$coefficients[2]
   # get its standard error
   alpha.se = sqrt(1/n * 1/mean(nu^2) * mean(eps^2 * nu^2) * 1/mean(nu^2))
@@ -140,6 +141,7 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   
   index.p = seq(1,p,1)
   
+  # prepare data for HOLP estimation
   X = scale(x)
   Y = y - mean(y)
   # HOLP ridge estimator
@@ -157,15 +159,15 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
   
   # build new matrix out of old matrix x with the as relevant identified indices from screening
   x.screen = x[,index.Holp] 
-   # define penalty weights vector for the adaptive LASSO
+  # define penalty weights vector for the adaptive LASSO
   penality.weight = 1/abs(OLS[index.Holp,1]) 
-   # treatment gets penatly weight 0
+  # treatment gets penatly weight 0
   if(default){
     penality.weight[match(m0,index.Holp)] = 0 
 
   }
   
-  # 1) does k-fold cross-validation for glmnet and produces a plot, and returns a value for lambda 
+  # perform LASSO with cross-validation for calculating lambda
   fit.lasso = cv.glmnet(x = x.screen, y = y, penalty.factor = penality.weight, 
                         standardize = TRUE, intercept = TRUE, pmax = dfmax) 
   
@@ -184,8 +186,8 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
     lambda = min(fit.lasso$lambda) 
   }
   
-  # 3) rebuilding the model using glmnet() function
-  # glmnet needs to be used again, because potentially, lambda.min was not chosen for lambda in line 181
+  # rebuilding the model using glmnet() function
+  # glmnet needs to be used again to refit the model with the newly selected lambda
   fit.lasso0 = glmnet(x = x.screen, y = y, standardize = TRUE, intercept = TRUE, 
                        lambda = lambda, penalty.factor = penality.weight)  
   # get nonzero coef of refitted model
@@ -207,7 +209,7 @@ HolpAlasso.set = function(y, x, m0, size.holp, default, dfmax, dfmin){
 }
 
 
-# This function selects the the variables of Double-Stability and is thus applied twice per iteration
+# This function selects the variables of Double-Stability and thus is applied twice per iteration
 
 # y: dependent variable, 
 # x: regressor matrix
@@ -216,7 +218,7 @@ db.stab.set = function(x, y){
   p = length(x[1,])
   index.Holp = seq(1,p,1)
   
-  # does k-fold cross-validation for glmnet and produces a plot, and returns a value for lambda 
+  # perform LASSO with cross-validation for calculating lambda
   fit.lasso = cv.glmnet(x = x, y = y, 
                         standardize = TRUE, intercept = TRUE) 
   
@@ -226,12 +228,15 @@ db.stab.set = function(x, y){
   # rebuilding the model using glmnet() function
   fit.lasso0 = glmnet(x = x, y = y, standardize = TRUE, intercept = TRUE, 
                       lambda = lambda) 
-  
-  theta.lasso = as.vector(coef(fit.lasso0))                              
+  # get nonzero coef of refitted model
+  theta.lasso = as.vector(coef(fit.lasso0)) 
+  # delete the estimated intercept of the LASSO regression with glmnet
   index.lasso = theta.lasso[-1]!=0 
   
+  # get the final selection indices
   M.hat = sort(index.Holp[index.lasso], decreasing = FALSE)
   
+  # return NULL, if no variable was selected
   if(sum(index.lasso) == 0){
     M.hat = NULL
   }
@@ -239,27 +244,38 @@ db.stab.set = function(x, y){
   return(M.hat) 
 }
 
+# This function processes model selection for PODS-Split
 
+# y: dependent variable, 
+# d: treatment variable,
+# x: regressor matrix,
+# size.holp: number of variables kept in the HOLP-screening step,
+# dfmax: upper bound of the model size
+# dfmin: lower bound of the model size
+# HolpAlasso.set.fun: make function HolpAlasso.set available for parallelization
 Projection.set = function(y, d, x, size.holp, dfmax, dfmin, HolpAlasso.set.fun) {
   
   p = length(x[1,])
   n = length(y)
   
+  # Perform HOLP + adaptive LASSO model selection for variables associated with d
   MD.hat = HolpAlasso.set.fun(y = d, x = x, m0 = 1, size.holp = size.holp, default = FALSE, 
                           dfmax = dfmax, dfmin = dfmin)
   
-  
+  # include the projection step as in PODS
   x.res = lm(x[,-MD.hat] ~ d + x[,MD.hat])$res
   y.res = lm(y ~ d + x[,MD.hat])$res
   
   index.p = seq(1,p)
   
+  # Perform HOLP + adaptive LASSO model selection for variables associated with y
   MX.hat = HolpAlasso.set.fun(y = y.res, x = x.res, m0 = 1, size.holp = size.holp, default = FALSE,
                           dfmax = dfmax, dfmin = dfmin)
   
   temp0 = index.p[-MD.hat]
   MX.hat = temp0[MX.hat] 
   
+  # get indices for final selected variables
   M.hat = unique(sort(c(MD.hat,MX.hat)))
   
   return(M.hat)
