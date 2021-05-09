@@ -54,11 +54,13 @@ r.split_mcfun = function(no_runs_mc, B, dfmin) {
         library(glmnet)
         library(MASS)
         
+        # initialize vectors
         alpha.est = c()
         model.size = c()
         
         set.seed(i + 12345)
         
+         # get data
         data = generate.data(pf = pf,
                              Rd2 = Rd2,
                              Ry2 = Ry2)
