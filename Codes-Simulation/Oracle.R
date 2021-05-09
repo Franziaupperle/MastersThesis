@@ -6,8 +6,10 @@ library(ggplot2)
 ### Estimation with oracle model selection
 # Oracle estimator only used when beta is (moderately) sparse
 
+# no_runs_mc: number of MC iterations
 oracle.mcfun = function(no_runs_mc) {
   
+  # generate relevant parameters
   pf = generate.parameter(
     n = n,
     p = p,
@@ -16,12 +18,14 @@ oracle.mcfun = function(no_runs_mc) {
     gamma = gamma
   )
   
+  # declare vectors for performance measures
   bias = c()
   mse = c()
   ci = c()
   ci.laenge = c()
   oracle0 = list(NULL, NULL, NULL, NULL)
   
+  # start MC-iteration
   for (i in 1:no_runs_mc) {
     set.seed(i + 12345)
     
@@ -33,6 +37,7 @@ oracle.mcfun = function(no_runs_mc) {
     m_x0 = pf$m_x0
     alpha0 = pf$alpha0
     
+    # perform estimation with the true model
     oracle = oracle(
       alpha0 = alpha0,
       y = y,
@@ -41,8 +46,10 @@ oracle.mcfun = function(no_runs_mc) {
       m_x0 = m_x0
     )
     
+    # store all results from MC-iterations in one object
     oracle0 = Map(c, oracle0, oracle)
     
+    # calculate relevant performance measures
     bias[i] = oracle$alpha - alpha0
     mse[i] = (oracle$alpha - alpha0) ^ 2 + oracle$se ^ 2
     ci[i] = oracle$ci
@@ -57,6 +64,7 @@ oracle.mcfun = function(no_runs_mc) {
     
   }
   
+  # return final results of the Oracle estimation with the selected parameter setting in the beginning
   result = list(
     oracle = oracle0,
     Bias = round(sqrt(n) * mean(bias), 2),
