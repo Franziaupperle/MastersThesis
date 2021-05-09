@@ -24,6 +24,7 @@ pods.mcfun = function(no_runs_mc) {
   
   pods.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
+    # initialize variables
     alpha.est = NULL
     alpha.se = NULL
     bias = c()
