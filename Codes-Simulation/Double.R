@@ -3,6 +3,7 @@
 
 double.mcfun = function(no_runs_mc) {
   
+  # generate relevant parameters
   pf = generate.parameter(
     n = n,
     p = p,
@@ -18,6 +19,7 @@ double.mcfun = function(no_runs_mc) {
     Ry2 = Ry2
   )
   
+  # start parallel computing
   double.parallel = function(no_runs_mc, pf, Rd2, Ry2) {
     
     alpha.est = NULL
