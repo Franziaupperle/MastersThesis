@@ -55,6 +55,7 @@ pods.split_mcfun = function(no_runs_mc, B, dfmin) {
         library(glmnet)
         library(MASS)
       
+        # initialize variables
         alpha.est = NULL
         alpha.se = NULL
         bias = NULL
@@ -65,6 +66,7 @@ pods.split_mcfun = function(no_runs_mc, B, dfmin) {
         
         set.seed(i + 12345)
         
+         # get data
         data = generate.data(pf = pf,
                              Rd2 = Rd2,
                              Ry2 = Ry2)
