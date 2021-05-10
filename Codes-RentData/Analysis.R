@@ -124,15 +124,6 @@ for (i in 1:length(freq)) {
   # get all inidices that have a relative inclusion frequency of at least freq[ndx]
   M.hat <- which(freq >= freq[ndx])
   print(colnames(x[,M.hat]))
-          
-   # For R-Split and PODS-Split, the following holds because the value of each relative inclusion frequency is relevant
-   # freq[ndx] = freq[ndx]
-          
-   # For Double-Stability (-0.01) is subtracted from the value of the relative inclusion frequency,
-   # on which the variables of iteration i base. This RIF is defined by 'freq[ndx]' 
-   # This is the reference treshold where the just additionally selected variables would not be dropped
-   # this is by far for being super precise
-   freq[ndx] = freq[ndx] - 0.01
   
   # Post-LASSO OLS step
   # get estimator for the rental brake
